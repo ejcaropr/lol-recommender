@@ -58,18 +58,49 @@ def create_champoin_db(db):
     return conn
 
 def create_players_db(db):
-    
+    conn = sqlite3.connect(db)
+    tables = ['players']
 
+    for table in tables:
+        try:
+            conn.execute('Drop table ' + table)
+        except sqlite3.OperationalError:
+            print('No '+ table +' to delete')
+
+    cursor = conn.cursor()
+
+    cursor.execute("""CREATE TABLE players (player_id integer PRIMARY KEY,
+                   losses integer, wins integer, isFreshBlood integer, isVeteran integer,
+                   player_name text, division text, isHotStreak integer, isInactive integer,
+                  leaguePoints integer, league text)""")
+
+    conn.commit()
+
+    return conn
+
+def add_player(cursor, player, league):
+    player_keys = ['playerOrTeamId',
+                   'losses',
+                   'wins',
+                   'isFreshBlood',
+                   'isVeteran',
+                   'playerOrTeamName',
+                   'division',
+                   'isHotStreak',
+                   'isInactive',
+                   'leaguePoints']
+
+    cursor.execute('INSERT INTO players VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                   [player[field] for field in player_keys] + [league]) 
+    
 def add_champion(cursor, champ):
     cursor.execute('INSERT INTO champions VALUES (?,?)',
                    [champ[field] for field in ['id', 'name']])
 
 def add_tag(cursor, champ):
-    priority = 1
-    for tag in champ['tags']:
+    for priority, tag in enumerate(champ['tags']):
         cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-                   [champ['id'],tag, priority])
-        priority += 1
+                   [champ['id'],tag, priority+1])
 
 def add_info(cursor, champ):
     cursor.execute('INSERT INTO info VALUES (?,?,?,?,?)',
@@ -110,6 +141,12 @@ def populate_champions(conn, data):
         add_stats(cursor, data[champ])
     conn.commit()
 
+def populate_players(conn, data):
+    cursor = conn.cursor()
+    for league in data:
+        for player in data[league]:
+            add_player(cursor, player, league)
+    conn.commit()
 
 def get_champ_data():
     ch_params = params.copy()
@@ -117,9 +154,11 @@ def get_champ_data():
     req = requests.get(apis['champion'], params = ch_params)
     return req.json()['data']
 
-def get_player_data(league='master'):
+def get_league_data(league='master'):
     pl_params = params.copy()
     pl_params['type'] = 'RANKED_SOLO_5x5'
     req = requests.get(apis[league + '_league'], params = pl_params)
     return req.json()['entries']
 
+def get_player_data():
+    return {league:get_league_data(league) for league in ['master', 'challenger']}
