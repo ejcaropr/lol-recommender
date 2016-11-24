@@ -1,5 +1,5 @@
-import requests
 import sqlite3
+import requests
 
 import secret_key
 
@@ -42,8 +42,8 @@ def create_champoin_db(db):
     cursor.execute("""CREATE TABLE info (champion_id integer, attack integer,
                    defense integer, difficulty integer, magic integer,
                    FOREIGN KEY(champion_id) REFERENCES champions(id))""")
-    
-    cursor.execute("""CREATE TABLE stats (champion_id integer, 
+
+    cursor.execute("""CREATE TABLE stats (champion_id integer,
                    attackspeedperlevel real, spellblock real, 
                    attackspeedoffset real, mpregen real, hpregen real,
                    critperlevel real, mp real, hpregenperlevel real,
@@ -91,8 +91,8 @@ def add_player(cursor, player, league):
                    'leaguePoints']
 
     cursor.execute('INSERT INTO players VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-                   [player[field] for field in player_keys] + [league]) 
-    
+                   [player[field] for field in player_keys] + [league])
+
 def add_champion(cursor, champ):
     cursor.execute('INSERT INTO champions VALUES (?,?)',
                    [champ[field] for field in ['id', 'name']])
@@ -100,12 +100,12 @@ def add_champion(cursor, champ):
 def add_tag(cursor, champ):
     for priority, tag in enumerate(champ['tags']):
         cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-                   [champ['id'],tag, priority+1])
+                       [champ['id'], tag, priority+1])
 
 def add_info(cursor, champ):
     cursor.execute('INSERT INTO info VALUES (?,?,?,?,?)',
-                   [champ['id']] + [champ['info'][field] for 
-                                    field in ['attack', 'defense','difficulty', 'magic']])
+                   [champ['id']] + [champ['info'][field] for
+                                    field in ['attack', 'defense', 'difficulty', 'magic']])
 
 def add_stats(cursor, champ):
     stat_keys = ['attackspeedperlevel',
@@ -148,16 +148,18 @@ def populate_players(conn, data):
             add_player(cursor, player, league)
     conn.commit()
 
+### Getter functions to extract data from Riot api
+
 def get_champ_data():
     ch_params = params.copy()
     ch_params['champData'] = 'all'
-    req = requests.get(apis['champion'], params = ch_params)
+    req = requests.get(apis['champion'], params=ch_params)
     return req.json()['data']
 
 def get_league_data(league='master'):
     pl_params = params.copy()
     pl_params['type'] = 'RANKED_SOLO_5x5'
-    req = requests.get(apis[league + '_league'], params = pl_params)
+    req = requests.get(apis[league + '_league'], params=pl_params)
     return req.json()['entries']
 
 def get_player_data():
