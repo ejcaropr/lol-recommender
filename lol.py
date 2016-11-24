@@ -12,13 +12,16 @@ base_url = {'static':"https://na.api.pvp.net/api/lol/static-data",
             'other': "https://na.api.pvp.net/api/lol"}
 
 apis = {"summoner": "/".join([base_url['other'], REGION, "/v1.4/summoner/by-name"]),
-        "champion": "/".join([base_url['static'], REGION, "champion"])}
+        "champion": "/".join([base_url['static'], REGION, API_Ver, "champion"]),
+        "master_league": "/".join([base_url['other'], REGION, "v2.5", "league/master"]),
+        "challenger_league": "/".join([base_url['other'], REGION, "v2.5", "league/challenger"])}
+
 params = {'api_key':DEV_KEY}
 
 def api_url(api, static='static'):
     return "/".join([base_url[static], REGION, API_Ver, api])
 
-def create_db(db):
+def create_champoin_db(db):
     conn = sqlite3.connect(db)
     tables = ['champions', 'spells', 'info', 'stats', 'tags']
 
@@ -53,6 +56,9 @@ def create_db(db):
     conn.commit()
 
     return conn
+
+def create_players_db(db):
+    
 
 def add_champion(cursor, champ):
     cursor.execute('INSERT INTO champions VALUES (?,?)',
@@ -105,5 +111,15 @@ def populate_champions(conn, data):
     conn.commit()
 
 
-params['champData'] = 'all'
-req = requests.get(apis['champion'], params = params)
+def get_champ_data():
+    ch_params = params.copy()
+    ch_params['champData'] = 'all'
+    req = requests.get(apis['champion'], params = ch_params)
+    return req.json()['data']
+
+def get_player_data(league='master'):
+    pl_params = params.copy()
+    pl_params['type'] = 'RANKED_SOLO_5x5'
+    req = requests.get(apis[league + '_league'], params = pl_params)
+    return req.json()['entries']
+
