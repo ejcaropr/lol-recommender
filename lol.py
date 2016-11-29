@@ -7,14 +7,17 @@ DBNAME = 'lol.db'
 DEV_KEY = secret_key.DEV_KEY
 REGION = "na"
 API_Ver = "v1.2"
+SNEAKY = 51405
 
 base_url = {'static':"https://na.api.pvp.net/api/lol/static-data",
             'other': "https://na.api.pvp.net/api/lol"}
 
-apis = {"summoner": "/".join([base_url['other'], REGION, "/v1.4/summoner/by-name"]),
+apis = {"summoner": "/".join([base_url['other'], REGION, "v1.4", "summoner/by-name"]),
         "champion": "/".join([base_url['static'], REGION, API_Ver, "champion"]),
         "master_league": "/".join([base_url['other'], REGION, "v2.5", "league/master"]),
-        "challenger_league": "/".join([base_url['other'], REGION, "v2.5", "league/challenger"])}
+        "challenger_league": "/".join([base_url['other'], REGION, "v2.5", "league/challenger"]),
+        "stats": "/".join([base_url['other'], REGION, "v1.3", "stats/by-summoner/{summonerId}/summary"]),
+        "stats_champ": "/".join([base_url['other'], REGION, "v1.3", "stats/by-summoner/{summonerId}/ranked"])}
 
 params = {'api_key':DEV_KEY}
 
@@ -164,3 +167,7 @@ def get_league_data(league='master'):
 
 def get_player_data():
     return {league:get_league_data(league) for league in ['master', 'challenger']}
+
+def get_player_stats(summonerId):
+    req = requests.get(apis['stats_champ'].format(summonerId = summonerId), params = params)
+    return req.json()['champions']
