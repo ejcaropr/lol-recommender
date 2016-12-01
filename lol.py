@@ -108,6 +108,34 @@ def create_players_db(db):
 
     return conn
 
+###Populate functions for tables ###################################
+
+def populate_champions(conn, data):
+    cursor = conn.cursor()
+    for champ in data:
+        add_champion(cursor, data[champ])
+        add_tag(cursor, data[champ])
+        add_info(cursor, data[champ])
+        add_stats(cursor, data[champ])
+    conn.commit()
+
+def populate_players(conn, data):
+    cursor = conn.cursor()
+    for league in data:
+        for player in data[league]:
+            add_player(cursor, player, league)
+    conn.commit()
+
+def populate_players_stats(conn, pl_list):
+    cursor = conn.cursor()
+    for player in pl_list:
+        pl_stats = get_player_stats(player)
+        for champ in pl_stats:
+            add_player_champ_stats(cursor, player, champ)
+    conn.commit()
+
+###Adder functions for records in each table ########################
+
 def add_player(cursor, player, league):
     player_keys = ['playerOrTeamId',
                    'losses',
@@ -192,31 +220,7 @@ def add_player_champ_stats(cursor, player_id, champ):
                    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", [player_id, champ['id']]
                    + [champ['stats'].get(field) for field in pl_stats_keys])#56 + 2 values
 
-def populate_champions(conn, data):
-    cursor = conn.cursor()
-    for champ in data:
-        add_champion(cursor, data[champ])
-        add_tag(cursor, data[champ])
-        add_info(cursor, data[champ])
-        add_stats(cursor, data[champ])
-    conn.commit()
-
-def populate_players(conn, data):
-    cursor = conn.cursor()
-    for league in data:
-        for player in data[league]:
-            add_player(cursor, player, league)
-    conn.commit()
-
-def populate_players_stats(conn, pl_list):
-    cursor = conn.cursor()
-    for player in pl_list:
-        pl_stats = get_player_stats(player)
-        for champ in pl_stats:
-            add_player_champ_stats(cursor, player, champ)
-    conn.commit()
-
-### Getter functions to extract data from Riot api
+### Getter functions to extract data from Riot api ##################
 
 def get_champ_data():
     ch_params = params.copy()
@@ -237,7 +241,25 @@ def get_player_stats(summonerId):
     req = requests.get(apis['stats_champ'].format(summonerId=summonerId), params=params)
     return req.json()['champions']
 
-def get_players(conn):
+def get_players_list(conn):
     conn.row_factory = sqlite3.Row
     query = conn.execute('select player_id from players')
     return [r[0] for r in query]
+
+### Main Code to create databases ###################################
+
+if __name__ == "__main__":
+    myconn = create_champion_db(DBNAME)
+    champ_data = get_champ_data()
+    populate_champions(myconn, champ_data)
+
+    myconn = create_players_db(DBNAME)
+    pl_data = get_player_data()
+    populate_players(myconn, pl_data)
+
+    players = get_players_list(myconn)
+    #n = 400
+    #for i in range(0, len(pl_list), n):
+    #    populate_players_stats(conn, pl_list[i:i+n])
+    #    time.sleep()
+    populate_players_stats(myconn, players)
