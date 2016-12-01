@@ -24,7 +24,7 @@ params = {'api_key':DEV_KEY}
 def api_url(api, static='static'):
     return "/".join([base_url[static], REGION, API_Ver, api])
 
-def create_champoin_db(db):
+def create_champion_db(db):
     conn = sqlite3.connect(db)
     tables = ['champions', 'spells', 'info', 'stats', 'tags']
 
@@ -62,7 +62,7 @@ def create_champoin_db(db):
 
 def create_players_db(db):
     conn = sqlite3.connect(db)
-    tables = ['players']
+    tables = ['players', 'players_stats']
 
     for table in tables:
         try:
@@ -76,6 +76,33 @@ def create_players_db(db):
                    losses integer, wins integer, isFreshBlood integer, isVeteran integer,
                    player_name text, division text, isHotStreak integer, isInactive integer,
                   leaguePoints integer, league text)""")
+
+    cursor.execute("""CREATE TABLE players_stats (player_id integer, champion_id integer,
+                   averageAssists integer, averageChampionsKilled integer,
+                   averageCombatPlayerScore integer, averageNodeCapture integer,
+                   averageNodeCaptureAssist integer, averageNodeNeutralize integer,
+                   averageNodeNeutralizeAssist integer, averageNumDeaths integer,
+                   averageObjectivePlayerScore integer, averageTeamObjective integer,
+                   averageTotalPlayerScore integer, botGamesPlayed integer, killingSpree integer, 
+                   maxAssists integer, maxChampionsKilled integer, maxCombatPlayerScore integer,
+                   maxLargestCriticalStrike integer, maxLargestKillingSpree integer, 
+                   maxNodeCapture integer, maxNodeCaptureAssist integer, maxNodeNeutralize integer,
+                   maxNodeNeutralizeAssist integer, maxNumDeaths integer,
+                   maxObjectivePlayerScore integer, maxTeamObjective integer, maxTimePlayed integer, 
+                   maxTimeSpentLiving integer, maxTotalPlayerScore integer,
+                   mostChampionKillsPerSession integer, mostSpellsCast integer, 
+                   normalGamesPlayed integer, rankedPremadeGamesPlayed integer, 
+                   rankedSoloGamesPlayed integer, totalAssists integer, totalChampionKills integer, 
+                   totalDamageDealt integer, totalDamageTaken integer, totalDeathsPerSession integer,
+                   totalDoubleKills integer, totalFirstBlood integer, totalGoldEarned integer, 
+                   totalHeal integer, totalMagicDamageDealt integer, totalMinionKills integer, 
+                   totalNeutralMinionsKilled integer, totalNodeCapture integer,
+                   totalNodeNeutralize integer, totalPentaKills integer, 
+                   totalPhysicalDamageDealt integer, totalQuadraKills integer, 
+                   totalSessionsLost integer, totalSessionsPlayed integer, totalSessionsWon integer, 
+                   totalTripleKills integer, totalTurretsKilled integer, totalUnrealKills integer,
+                   FOREIGN KEY(player_id) REFERENCES players(player_id),
+                   FOREIGN KEY(champion_id) REFERENCES champions(id))""")
 
     conn.commit()
 
@@ -135,6 +162,36 @@ def add_stats(cursor, champ):
     cursor.execute('INSERT INTO stats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                    [champ['id']] + [champ['stats'][field] for field in stat_keys])
 
+def add_player_champ_stats(cursor, player_id, champ):
+    pl_stats_keys = ['averageAssists', 'averageChampionsKilled',
+                     'averageCombatPlayerScore', 'averageNodeCapture',
+                     'averageNodeCaptureAssist', 'averageNodeNeutralize',
+                     'averageNodeNeutralizeAssist', 'averageNumDeaths',
+                     'averageObjectivePlayerScore', 'averageTeamObjective',
+                     'averageTotalPlayerScore', 'botGamesPlayed', 'killingSpree',
+                     'maxAssists', 'maxChampionsKilled', 'maxCombatPlayerScore',
+                     'maxLargestCriticalStrike', 'maxLargestKillingSpree',
+                     'maxNodeCapture', 'maxNodeCaptureAssist', 'maxNodeNeutralize',
+                     'maxNodeNeutralizeAssist', 'maxNumDeaths',
+                     'maxObjectivePlayerScore', 'maxTeamObjective', 'maxTimePlayed',
+                     'maxTimeSpentLiving', 'maxTotalPlayerScore',
+                     'mostChampionKillsPerSession', 'mostSpellsCast',
+                     'normalGamesPlayed', 'rankedPremadeGamesPlayed',
+                     'rankedSoloGamesPlayed', 'totalAssists', 'totalChampionKills',
+                     'totalDamageDealt', 'totalDamageTaken', 'totalDeathsPerSession',
+                     'totalDoubleKills', 'totalFirstBlood', 'totalGoldEarned',
+                     'totalHeal', 'totalMagicDamageDealt', 'totalMinionKills',
+                     'totalNeutralMinionsKilled', 'totalNodeCapture',
+                     'totalNodeNeutralize', 'totalPentaKills',
+                     'totalPhysicalDamageDealt', 'totalQuadraKills',
+                     'totalSessionsLost', 'totalSessionsPlayed', 'totalSessionsWon',
+                     'totalTripleKills', 'totalTurretsKilled', 'totalUnrealKills']
+
+    cursor.execute("""INSERT INTO players_stats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,
+                   ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+                   ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", [player_id, champ['id']]
+                   + [champ['stats'].get(field) for field in pl_stats_keys])#56 + 2 values
+
 def populate_champions(conn, data):
     cursor = conn.cursor()
     for champ in data:
@@ -149,6 +206,14 @@ def populate_players(conn, data):
     for league in data:
         for player in data[league]:
             add_player(cursor, player, league)
+    conn.commit()
+
+def populate_players_stats(conn, pl_list):
+    cursor = conn.cursor()
+    for player in pl_list:
+        pl_stats = get_player_stats(player)
+        for champ in pl_stats:
+            add_player_champ_stats(cursor, player, champ)
     conn.commit()
 
 ### Getter functions to extract data from Riot api
@@ -169,5 +234,10 @@ def get_player_data():
     return {league:get_league_data(league) for league in ['master', 'challenger']}
 
 def get_player_stats(summonerId):
-    req = requests.get(apis['stats_champ'].format(summonerId = summonerId), params = params)
+    req = requests.get(apis['stats_champ'].format(summonerId=summonerId), params=params)
     return req.json()['champions']
+
+def get_players(conn):
+    conn.row_factory = sqlite3.Row
+    query = conn.execute('select player_id from players')
+    return [r[0] for r in query]
