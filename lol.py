@@ -1,4 +1,5 @@
 import sqlite3
+import time
 import requests
 
 import secret_key
@@ -8,6 +9,7 @@ DEV_KEY = secret_key.DEV_KEY
 REGION = "na"
 API_Ver = "v1.2"
 SNEAKY = 51405
+
 
 base_url = {'static':"https://na.api.pvp.net/api/lol/static-data",
             'other': "https://na.api.pvp.net/api/lol"}
@@ -130,6 +132,7 @@ def populate_players_stats(conn, pl_list):
     cursor = conn.cursor()
     for player in pl_list:
         pl_stats = get_player_stats(player)
+        time.sleep(6/5) #limiting for api rate
         for champ in pl_stats:
             add_player_champ_stats(cursor, player, champ)
     conn.commit()
@@ -223,23 +226,43 @@ def add_player_champ_stats(cursor, player_id, champ):
 ### Getter functions to extract data from Riot api ##################
 
 def get_champ_data():
+    #global TOTAL_REQUESTS
+
     ch_params = params.copy()
     ch_params['champData'] = 'all'
     req = requests.get(apis['champion'], params=ch_params)
+
+    #TOTAL_REQUESTS += 1
+    #print("Total requests: {number}".format(number=TOTAL_REQUESTS))
+
     return req.json()['data']
 
 def get_league_data(league='master'):
+    #global TOTAL_REQUESTS
+
     pl_params = params.copy()
     pl_params['type'] = 'RANKED_SOLO_5x5'
     req = requests.get(apis[league + '_league'], params=pl_params)
+
+    #TOTAL_REQUESTS += 1
+    #print("Total requests: {number}".format(number=TOTAL_REQUESTS))
+
     return req.json()['entries']
+
+def get_player_stats(summonerId):
+    global TOTAL_REQUESTS
+
+    req = requests.get(apis['stats_champ'].format(summonerId=summonerId), params=params)
+
+    TOTAL_REQUESTS += 1
+    print("Total requests: {number}".format(number=TOTAL_REQUESTS))
+
+    return req.json()['champions']
 
 def get_player_data():
     return {league:get_league_data(league) for league in ['master', 'challenger']}
 
-def get_player_stats(summonerId):
-    req = requests.get(apis['stats_champ'].format(summonerId=summonerId), params=params)
-    return req.json()['champions']
+### Query created tables so far #####################################
 
 def get_players_list(conn):
     conn.row_factory = sqlite3.Row
@@ -249,6 +272,7 @@ def get_players_list(conn):
 ### Main Code to create databases ###################################
 
 if __name__ == "__main__":
+    TOTAL_REQUESTS = 0
     myconn = create_champion_db(DBNAME)
     champ_data = get_champ_data()
     populate_champions(myconn, champ_data)
