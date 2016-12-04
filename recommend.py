@@ -40,3 +40,6 @@ def rank_dist_df(df, index, profile):
 	return int(mysum)
 
 rank_dists = {i:rank_dist_df(player_champs,i,profile) for i in player_champs.index}
+
+def normalize_df(df):
+	return df.div(x.sum(axis=1), axis=0)
