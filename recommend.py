@@ -1,45 +1,46 @@
 import sqlite3
-import pandas as pd
-import numpy as np
-
 from scipy.stats import rankdata
+import numpy as np
+import pandas as pd
 
-conn = sqlite3.connect('lol.db')
+def get_player_champ_data(db_name):
+    conn = sqlite3.connect(db_name)
+    player_champs = pd.read_sql("""select player_id, champion_id,
+    								totalSessionsplayed from players_stats""", conn)
 
-player_champs = pandas.read_sql("""select player_id, champion_id,
-								totalSessionsplayed from players_stats""", conn)
+    player_champs = player_champs.pivot(index='player_id', columns='champion_id',
+                                        values='totalSessionsPlayed')
+    conn.close()
 
-player_champs = player_champs.pivot(index='player_id', columns='champion_id', values='totalSessionsPlayed')
-player_champs = player_champs.div(player_champs[0], axis='index')
+    return player_champs.div(player_champs[0], axis='index')
 
-def compare_profile(profile):
-#profile is dictionary with [0,1] for rated champions
-	X = player_champs.loc[:,profile]
-	row_filter = X.notnull().all(axis=1)
-	X = X.loc[row_filter]
+def rank_dist_df(dframe, index, profile):
+    ranked = rankdata(-dframe.loc[index], method='max')
+    mysum = 0
+    for i, k in enumerate(profile):
+        pos = np.where(dframe.columns == k)
+        mysum += abs(i - ranked[pos]+1)
+    return int(mysum)
 
-	profile_df = pd.DataFrame(profile, index=[0])
+def get_weights(dframe, profile, degree=1):
+    return (pd.Series({i:rank_dist_df(dframe, i, profile) for i in dframe.index}, 
+                      name='weights') + 10e-6)**degree
 
-	return ((X - profile_df.values[0])**2).sum(axis=1)**0.5
+def normalize_df(dframe):
+    return dframe.div(dframe.sum(axis=1), axis=0)
 
-def l2_dist(x,y):
-	return ((x-y)**2).sum()
+def get_pred(dframe, profile, degree=1):
+    weights = get_weights(dframe, profile, degree)
+    X = normalize_df(dframe.drop([0]+profile, axis=1))
+    prod = X.mul(1/weights, axis=0)
+    pred = prod.sum(axis=0).sort_values()
+    return pred/sum(pred)
 
-def rank_dist(list1, list2):
-	mysum = 0
-	for i,k in enumerate(list1):
-		mysum += abs(i-list2.index(k))
-	return mysum
+if __name__ == "__main__":
+    DBNAME = 'lol.py'
 
-def rank_dist_df(df, index, profile):
-	ranked = rankdata(-df.loc[index],method='max')
-	mysum = 0
-	for i,k in enumerate(profile):
-		pos = np.where(df.columns == k)
-		mysum += abs(i - ranked[pos]+1)
-	return int(mysum)
+    profile = [22,1]
 
-rank_dists = {i:rank_dist_df(player_champs,i,profile) for i in player_champs.index}
-
-def normalize_df(df):
-	return df.div(x.sum(axis=1), axis=0)
+    player_champs = get_player_champ_data(DBNAME)
+    weights = get_weights(player, profile)
+    preds = get_pred(player_champs, profile)
