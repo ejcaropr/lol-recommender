@@ -1,14 +1,61 @@
 <!doctype html>
-<title>Champion Recommender</title>
-<table align="left">
-    {% for champion in list1 %}
-        <tr><td> {{champion}} </td></tr>
-    {% endfor %}
-</table>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> 
+  <style>
+  #sortable1, #sortable2 {
+    border: 1px solid #eee;
+    width: 142px;
+    min-height: 20px;
+    list-style-type: none;
+    margin: 0;
+    padding: 5px 0 0 0;
+    float: left;
+    margin-right: 10px;
+  }
+  #sortable1 li, #sortable2 li {
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    font-size: 1.2em;
+    width: 120px;
+  }
+  </style>
 
-<table align="left 10pt">
-    {% for champion in list2 %}
-        <tr><td> {{champion}} </td></tr>
-    {% endfor %}
-</table>
+  <script>
+  $( function() {
+    $( "#sortable1, #sortable2" ).sortable({
+      connectWith: ".connectedSortable"
+    }).disableSelection();
+  } );
+  </script>
+
+  <script>
+    $(document).ready(function() {
+        $("sortable1").change(function(event){
+            print('hello')
+        })
+    })
+  </script>
+
+  <title>Champion Recommender</title>
+
+  <div class="container" style="height: 520px">
+
+    <div style="left: 14.5%; top: 10px; width: 37%; position: absolute">
+      <ul id="sortable1" class="connectedSortable">
+      {% for champion in list1 %}
+        <li> {{champion}} </li>
+      {% endfor %}
+      </ul>
+    </div>
+
+    <div style="left: 58%; top: 10px; width: 40%; position: absolute">  
+      <ul id="sortable2" class="connectedSortable">
+        {% for champion in list2 %}
+          <li> {{champion}} </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
 </html>
