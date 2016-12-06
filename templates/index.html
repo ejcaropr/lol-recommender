@@ -26,25 +26,30 @@
     $( "#sortable1, #sortable2" ).sortable({
       connectWith: ".connectedSortable"
     }).disableSelection();
-  } );
-  </script>
 
-  <script>
-    $(document).ready(function() {
-        $("sortable1").change(function(event){
-            print('hello')
-        })
-    })
+    $("#sortable1").sortable({
+      change: function(event, ui){
+      var data = $(this).sortable('serialize');
+      $.ajax({
+             result:data,
+             traditional: true,
+             type: 'POST',
+             url: '/'
+            });
+      }
+    });
+  });
   </script>
 
   <title>Champion Recommender</title>
 
-  <div class="container" style="height: 520px">
-
+  <div class="container" style="height: 220px">
     <div style="left: 14.5%; top: 10px; width: 37%; position: absolute">
       <ul id="sortable1" class="connectedSortable">
       {% for champion in list1 %}
-        <li> {{champion}} </li>
+        <li id = "item_{{champion}}">
+          <input type="hidden" name="profile[]" value="{{champion}}" /> {{champion}}
+        </li>
       {% endfor %}
       </ul>
     </div>
@@ -52,7 +57,7 @@
     <div style="left: 58%; top: 10px; width: 40%; position: absolute">  
       <ul id="sortable2" class="connectedSortable">
         {% for champion in list2 %}
-          <li> {{champion}} </li>
+          <li id = "item_{{champion}}"> {{champion}} </li>
         {% endfor %}
       </ul>
     </div>
