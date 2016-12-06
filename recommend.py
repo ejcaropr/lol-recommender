@@ -33,7 +33,7 @@ def get_pred(dframe, profile, degree=1):
     weights = get_weights(dframe, profile, degree)
     X = normalize_df(dframe.drop([0]+profile, axis=1))
     prod = X.mul(1/weights, axis=0)
-    pred = prod.sum(axis=0).sort_values()
+    pred = prod.sum(axis=0).sort_values(ascending=False)
     return pred/sum(pred)
 
 if __name__ == "__main__":
@@ -42,5 +42,5 @@ if __name__ == "__main__":
     profile = [22,1]
 
     player_champs = get_player_champ_data(DBNAME)
-    weights = get_weights(player, profile)
+    weights = get_weights(player_champs, profile)
     preds = get_pred(player_champs, profile)
