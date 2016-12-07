@@ -1,20 +1,10 @@
-
-    <div style="left: 14.5%; top: 10px; width: 37%; position: absolute">
-      <ul id="sortable1" class="connectedSortable">
-      {% for champion in list1 %}
+  <div>
+    <ul id="sortable2" class="connectedSortable">
+      {% for champion in list2 %}
         <li id = "item_{{champion}}">
-          <input type="hidden" name="profile[]" value={{champion}} /> {{champion}}
+        <input type="hidden" name="profile[]" value={{champion}} />{{champion}}
         </li>
       {% endfor %}
-      </ul>
-    </div>
+    </ul>
+  </div>
 
-    <div style="left: 58%; top: 10px; width: 40%; position: absolute">  
-      <ul id="sortable2" class="connectedSortable">
-        {% for champion in list2 %}
-          <li id = "item_{{champion}}"> 
-          <input type="hidden" name="profile[]" value={{champion}} />{{champion}} 
-          </li>
-        {% endfor %}
-      </ul>
-    </div>

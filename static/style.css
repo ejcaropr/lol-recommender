@@ -1,0 +1,51 @@
+
+
+  body{
+    cursor: default;
+    -ms-user-select: none; /* IE 10+ */
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    background-color: royalblue;
+  }
+
+  #sortable1, #sortable2 {
+    border: 2px solid #eee;
+    border-radius: 20px;
+    color: white;
+    align-items: center;
+    width: 160px;
+    min-height: 20px;
+    list-style-type: none;
+    margin: 0;
+    padding: 5px 0 0 0;
+    float: left;
+    margin-right: 10px;
+    position: absolute;
+  }
+  #sortable1 li, #sortable2 li {
+    border: 1px solid #eee;
+    border-radius: 20px;
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    background-color: #513AA5;
+    font-size: 1.2em;
+    text-align: center;
+    width: 120px;
+    cursor: pointer;
+  }
+
+  #sortable1{
+    right: 55%;
+    top: 30%;
+    /*width: 37%;*/
+    position: fixed;
+  }
+
+  #sortable2{
+    left: 55%;
+    top: 15%;
+    /*width: 40%;*/
+  }
+  </style>

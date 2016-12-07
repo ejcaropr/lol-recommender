@@ -1,55 +1,28 @@
 <!doctype html>
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> 
-  <style>
-  #sortable1, #sortable2 {
-    border: 1px solid #eee;
-    width: 142px;
-    min-height: 20px;
-    list-style-type: none;
-    margin: 0;
-    padding: 5px 0 0 0;
-    float: left;
-    margin-right: 10px;
-  }
-  #sortable1 li, #sortable2 li {
-    margin: 0 5px 5px 5px;
-    padding: 5px;
-    font-size: 1.2em;
-    width: 120px;
-  }
-  </style>
-
-  <script>
-  function init(data){
-    if (data == null){
-      data = [];
-    }
-    $.post("/load_table", data, function(resp) {
-      $(".container").html(resp);
-      $( "#sortable1, #sortable2" ).sortable({
-        connectWith: ".connectedSortable"
-        }).disableSelection();
-      $("#sortable1").sortable({
-        update: function(event, ui){
-          $(this).sortable('refresh');
-          var data = $(this).sortable('serialize');
-          init(data);
-        }
-      });
-    })
-  }
-  $( function() {
-    init();
-
-  });
-  </script>
+  <script src="{{url_for('static', filename='myscript.js')}}"></script>
+  <link rel="stylesheet" href= "{{url_for('static', filename='style.css')}}">
 
   <title>Champion Recommender</title>
 
-  <div class="container" style="height: 220px">
-
+    <div>
+    <ul id="sortable1" class="connectedSortable">
+    {% for champion in list1 %}
+      <li id = "item_{{champion}}">
+        <input type="hidden" name="profile[]" value={{champion}} /> {{champion}}
+      </li>
+    {% endfor %}
+    </ul>
   </div>
+
+  <div class="container"></div>
+
+  <script>
+    $(function(){
+        init();
+      });
+  </script>
+
 
 </html>
