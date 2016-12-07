@@ -22,45 +22,34 @@
   </style>
 
   <script>
+  function init(data){
+    if (data == null){
+      data = [];
+    }
+    $.post("/load_table", data, function(resp) {
+      $(".container").html(resp);
+      $( "#sortable1, #sortable2" ).sortable({
+        connectWith: ".connectedSortable"
+        }).disableSelection();
+      $("#sortable1").sortable({
+        update: function(event, ui){
+          $(this).sortable('refresh');
+          var data = $(this).sortable('serialize');
+          init(data);
+        }
+      });
+    })
+  }
   $( function() {
-    $( "#sortable1, #sortable2" ).sortable({
-      connectWith: ".connectedSortable"
-    }).disableSelection();
+    init();
 
-    $("#sortable1").sortable({
-      change: function(event, ui){
-      var data = $(this).sortable('serialize');
-      $.ajax({
-             result:data,
-             traditional: true,
-             type: 'POST',
-             url: '/'
-            });
-      }
-    });
   });
   </script>
 
   <title>Champion Recommender</title>
 
   <div class="container" style="height: 220px">
-    <div style="left: 14.5%; top: 10px; width: 37%; position: absolute">
-      <ul id="sortable1" class="connectedSortable">
-      {% for champion in list1 %}
-        <li id = "item_{{champion}}">
-          <input type="hidden" name="profile[]" value="{{champion}}" /> {{champion}}
-        </li>
-      {% endfor %}
-      </ul>
-    </div>
 
-    <div style="left: 58%; top: 10px; width: 40%; position: absolute">  
-      <ul id="sortable2" class="connectedSortable">
-        {% for champion in list2 %}
-          <li id = "item_{{champion}}"> {{champion}} </li>
-        {% endfor %}
-      </ul>
-    </div>
   </div>
 
 </html>
