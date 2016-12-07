@@ -13,14 +13,19 @@ def load_pred():
 
 @app.route('/load_table', methods=['GET', 'POST'])
 def load_table():
+    degree = request.form.get('degree')
     profile = request.form.getlist('item[]')
-
+    print(degree)
     #if not profile:
     #    profile = [22,13]
+    if not degree:
+    	degree = 10
     profile = [int(p) for p in profile]
+    degree = int(degree)/10
     print(profile)
-    weights = get_weights(player_champs, profile)
-    preds = get_pred(player_champs, profile)
+    print(degree)
+
+    preds = get_pred(player_champs, profile, degree)
     return render_template('table.html', list1=profile, list2=preds.index)
 
 if __name__ == "__main__":

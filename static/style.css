@@ -10,6 +10,23 @@
     background-color: royalblue;
   }
 
+  #slider {
+    z-index: 1000;
+    width: 95%;
+    position: fixed;
+    left: 2.5%;
+
+  }
+
+  #custom-handle {
+    width: 3em;
+    height: 1.6em;
+    top: 50%;
+    margin-top: -.8em;
+    text-align: center;
+    line-height: 1.6em;
+  }
+
   #sortable1, #sortable2 {
     border: 2px solid #eee;
     border-radius: 20px;
