@@ -1,6 +1,5 @@
-secret_key.py
-*.bak
-*.db
+venv/**
 __pycache__/**
+secret_key.py
+*.db
 *.pyc
-
