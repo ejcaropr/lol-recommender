@@ -14,6 +14,14 @@ def get_player_champ_data(db_name):
 
     return player_champs.div(player_champs[0], axis='index')
 
+def get_champ_dict(db_name):
+    conn = sqlite3.connect(db_name)
+    champ_dict = pd.read_sql("""select id, name from champions""", conn, index_col='id')
+
+    conn.close()
+
+    return champ_dict
+
 def rank_dist_df(dframe, index, profile):
     ranked = rankdata(-dframe.loc[index], method='max')
     mysum = 0
@@ -23,7 +31,7 @@ def rank_dist_df(dframe, index, profile):
     return int(mysum)
 
 def get_weights(dframe, profile, degree=1):
-    return (pd.Series({i:rank_dist_df(dframe, i, profile) for i in dframe.index}, 
+    return (pd.Series({i:rank_dist_df(dframe, i, profile) for i in dframe.index},
                       name='weights') + 10e-6)**degree
 
 def normalize_df(dframe):

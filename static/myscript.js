@@ -7,7 +7,7 @@ function init(data){
     $(".container").html(resp);
 
     $("#sortable1, #sortable2").sortable({
-        connectWith: ".connectedSortable"}).disableSelection();
+        connectWith: ".connectedSortable"});
 
     $("#sortable1").sortable({
       update: function(event, ui){

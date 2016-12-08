@@ -16,8 +16,8 @@
     <div>
     <ul id="sortable1" class="connectedSortable">
     {% for champion in list1 %}
-      <li id = "item_{{champion}}">
-        <input type="hidden" name="profile[]" value={{champion}} /> {{champion}}
+      <li id = "item_{{champion[0]}}">
+        <input type="hidden" name="profile[]" value={{champion[0]}} /> {{champion[1]['name']}}
       </li>
     {% endfor %}
     </ul>
