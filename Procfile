@@ -1,1 +1,1 @@
-web: python3 rec_app.py runserver 0.0.0.0
+web: gunicorn rec_app:app
