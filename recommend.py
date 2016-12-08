@@ -66,9 +66,17 @@ def get_pred(dframe, profile, degree=1):
     giving less weight to those players farther from input profile.
     """
     weights = get_weights(dframe, profile, degree)
+
+    #Drop 0 (total) and champions in profile
     X = normalize_df(dframe.drop([0]+profile, axis=1))
+
+    #Multiply normalized matrix by inverse of weights
     prod = X.mul(1/weights, axis=0)
-    pred = prod.sum(axis=0).sort_values(ascending=False)
+
+    #Sum all the rows after having the weights applied, this will give a total
+    #per champion, normalized for number of players who played this champ
+    pred = prod.sum(axis=0).div(prod.notnull().sum(axis=0))
+    pred = pred.sort_values(ascending=False)
     return pred/sum(pred)
 
 if __name__ == "__main__":
