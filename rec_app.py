@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, url_for
-from recommend import *
+import recommend as rec
 DBNAME = 'lol.db'
 app = Flask(__name__)
 
-player_champs = get_player_champ_data(DBNAME)
-champ_dict = get_champ_dict(DBNAME)
+player_champs = rec.get_player_champ_data(DBNAME)
+champ_dict = rec.get_champ_dict(DBNAME)
 
 @app.route('/', methods=['GET', 'POST'])
 def load_pred():
@@ -21,7 +21,7 @@ def load_table():
     #    profile = [22,13]
 
     if not degree:
-    	degree = 10
+        degree = 10
 
     profile = [int(p) for p in profile]
     degree = int(degree)/10
@@ -29,7 +29,7 @@ def load_table():
     print(profile)
     print(degree)
 
-    preds = get_pred(player_champs, profile, degree)
+    preds = rec.get_pred(player_champs, profile, degree)
 
     profile = champ_dict.loc[profile, :]
     preds = champ_dict.loc[preds.index, :]

@@ -8,15 +8,23 @@
     -webkit-user-select: none;
     user-select: none;
     background-color: royalblue;
+    color: white;
+    font-family: Arial;
+    font-variant: small-caps;
   }
 
-  #slider {
-    z-index: 1000;
-    width: 95%;
+  #header{
     position: fixed;
-    left: 2.5%;
-    opacity: 0.8;
+  }
 
+  #slider_box{
+    position: fixed;
+    width: 95%;
+    left: 2.5%;
+    z-index: 1000;
+    opacity: 0.8;
+    top: 50px;
+    font-variant: normal;
   }
 
   #custom-handle {
@@ -28,19 +36,54 @@
     line-height: 1.6em;
   }
 
+  #prof_box{
+    left:0;
+    width:50%;
+    position: fixed;
+  }
+
+  #prof_label, #pred_label{
+    top:270px;
+    position: absolute;
+    background-color: white;
+    color: royalblue;
+    text-align: center;
+    font-size-adjust: 1.2;
+    font-style: italic;
+    padding: 10px;
+
+  }
+
+  #prof_label{
+    right: 200px;
+  }
+
+  #pred_label{
+    left: 200px;
+  }
+
+  #pred_box{
+    right:0;
+    width: 50%;
+    position: absolute;
+  }
+
+  #label_box{
+    position:fixed;
+    width:50%;
+    right:0;
+  }
+
+
   #sortable1, #sortable2 {
     border: 2px solid #eee;
     border-radius: 20px;
-    color: white;
     align-items: center;
     width: 160px;
     min-height: 20px;
     list-style-type: none;
-    margin: 0;
+    margin: 5px;
     padding: 5px 0 0 0;
-    float: left;
-    margin-right: 10px;
-    position: absolute;
   }
   #sortable1 li, #sortable2 li {
     border: 1px solid #eee;
@@ -55,15 +98,14 @@
   }
 
   #sortable1{
-    right: 55%;
-    top: 30%;
-    /*width: 37%;*/
-    position: fixed;
+    position: absolute;
+    top: 270px;
+    right: 0;
   }
 
   #sortable2{
-    left: 55%;
-    top: 15%;
-    /*width: 40%;*/
+    position: absolute;
+    top: 150px;
+    left: 0;
   }
 

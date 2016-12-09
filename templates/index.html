@@ -8,12 +8,18 @@
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
   <title>Champion Recommender</title>
+  <h3 id="header">Champion Recommender</h3>
 
-  <div id="slider">
-    <div id="custom-handle" class="ui-slider-handle"></div>
+  <div id="slider_box">
+    <p id="slide_desc">Profile Weight:</p>
+      <div id="slider">
+        <div id="custom-handle" class="ui-slider-handle"></div>
+      </div>
   </div>
 
-    <div>
+  <div id="prof_box">
+
+    <p id="prof_label">Profile</p>
     <ul id="sortable1" class="connectedSortable">
     {% for champion in list1 %}
       <li id = "item_{{champion[0]}}">
@@ -23,7 +29,15 @@
     </ul>
   </div>
 
-  <div class="container"></div>
+  <div id="label_box">
+    <p id="pred_label">Prediction</p>
+  </div>
+
+  <div id="pred_box">
+    <ul id="sortable2" class="connectedSortable">
+
+    </ul>
+  </div>
 
   <script>
     $(function(){

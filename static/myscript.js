@@ -4,7 +4,7 @@ function init(data){
   }
 
   $.post("/load_table", data, function(resp){
-    $(".container").html(resp);
+    $("#sortable2").html(resp);
 
     $("#sortable1, #sortable2").sortable({
         connectWith: ".connectedSortable"});
