@@ -35,10 +35,12 @@ def rank_dist_df(dframe, index, profile):
     dframe: contains a column for each champion and a row for each player
     index: player_id that is being compared to profile
 
+    Set NaNs to -1 so they will be ranked last.
+
     In case of tie, assigns to all elements the lowest ranking for which
     they are all tied.
     """
-    ranked = rankdata(-dframe.loc[index], method='max')
+    ranked = rankdata(-(dframe.loc[index].fillna(-1)), method='max')
     mysum = 0
     for i, k in enumerate(profile):
         pos = np.where(dframe.columns == k)
