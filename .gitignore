@@ -3,3 +3,4 @@ __pycache__/**
 secret_key.py
 #*.db
 *.pyc
+*.bak
